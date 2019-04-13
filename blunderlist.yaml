@@ -1,0 +1,68 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: blunderlist
+spec:
+  selector:
+    istio: ingressgateway # Use istio default gateway implementation
+  servers:
+  - hosts:
+    - api.blunderlist.com
+    - www.blunderlist.com
+    port:
+      name: http
+      number: 80
+      protocol: HTTP
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: blunderlist-gateway
+spec:
+  gateways:
+  - blunderlist
+  hosts:
+  - api.blunderlist.com
+  - www.blunderlist.com
+  http:
+  - corsPolicy:
+      allowHeaders:
+      - content-type
+      allowMethods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      allowOrigin:
+      - "*"
+      maxAge: "24h"
+    match:
+    - uri:
+        prefix: "/v1/"
+    rewrite:
+      uri: "/"
+    route:
+    - destination:
+        host: blunderlist-gateway
+        port:
+          number: 8080
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: blunderlist-frontend
+spec:
+  gateways:
+  - blunderlist
+  hosts:
+  - www.blunderlist.com
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: blunderlist-frontend
+        port:
+          number: 8080
