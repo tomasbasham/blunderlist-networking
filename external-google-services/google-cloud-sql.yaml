@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: google-cloud-sql
+spec:
+  hosts:
+  # use `gcloud sql instances list` to find the IP address of the Google Cloud
+  # SQL instance
+  - 35.230.142.90
+  addresses:
+  # use `gcloud sql instances list` to find the IP address of the Google Cloud
+  # SQL instance
+  - 35.230.142.90/32
+  location: MESH_EXTERNAL
+  ports:
+  - name: tcp
+    number: 3307
+    protocol: TCP
+  resolution: NONE
